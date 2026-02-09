@@ -48,19 +48,24 @@ def _get_sheet():
 
     client = _get_client()
     if not client:
+        print("❌ Could not get Google Sheets client")
         return None
 
     sheet_id = os.environ.get("GOOGLE_SHEETS_ID", "")
     if not sheet_id:
+        print("❌ GOOGLE_SHEETS_ID not configured")
         return None
 
     try:
+        print(f"📊 Opening spreadsheet with ID: {sheet_id}")
         spreadsheet = client.open_by_key(sheet_id)
         # Try to get "Registro" sheet, or first sheet
         try:
             _sheet = spreadsheet.worksheet("Registro")
+            print("✅ Found 'Registro' worksheet")
         except gspread.exceptions.WorksheetNotFound:
             _sheet = spreadsheet.sheet1
+            print("✅ Using first worksheet")
         return _sheet
     except Exception as e:
         print(f"❌ Google Sheets error: {e}")
@@ -98,8 +103,10 @@ def setup_sheet_headers():
 
 def sync_transaction(tx_type, category, amount, description="", payment_method="Efectivo"):
     """Append a transaction row to Google Sheet."""
+    print(f"📝 Attempting to sync transaction: {tx_type}, {category}, {amount}")
     sheet = _get_sheet()
     if not sheet:
+        print("❌ Could not get sheet object")
         return False
 
     try:
@@ -114,6 +121,7 @@ def sync_transaction(tx_type, category, amount, description="", payment_method="
             now.strftime("%H:%M"),
         ]
         sheet.append_row(row, value_input_option="USER_ENTERED")
+        print(f"✅ Transaction synced to Google Sheets: {row}")
         return True
     except Exception as e:
         print(f"❌ Sync error: {e}")

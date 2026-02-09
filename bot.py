@@ -126,7 +126,10 @@ def add_transaction(user_id, tx_type, category, amount, description="", payment_
     conn.close()
     # Sync to Google Sheets
     if sheets_sync.is_enabled():
-        sheets_sync.sync_transaction(tx_type, category, amount, description, payment_method)
+        print(f"📊 Google Sheets is enabled, syncing transaction...")
+        result = sheets_sync.sync_transaction(tx_type, category, amount, description, payment_method)
+        if not result:
+            print("⚠️ Failed to sync to Google Sheets")
 
 def get_today_total(user_id):
     conn = get_db()
@@ -1005,7 +1008,6 @@ def main():
     # ── Conversation: /gasto ──
     gasto_conv = ConversationHandler(
         entry_points=[CommandHandler("gasto", cmd_gasto)],
-        per_message=False,
         states={
             AMOUNT: [
                 CallbackQueryHandler(category_selected, pattern=r"^cat_"),
@@ -1019,12 +1021,12 @@ def main():
             ],
         },
         fallbacks=[CommandHandler("cancel", cancel_conversation)],
+        per_message=False,
     )
 
     # ── Conversation: /ingreso ──
     ingreso_conv = ConversationHandler(
         entry_points=[CommandHandler("ingreso", cmd_ingreso)],
-        per_message=False,
         states={
             AMOUNT: [
                 CallbackQueryHandler(category_selected, pattern=r"^cat_"),
@@ -1038,12 +1040,12 @@ def main():
             ],
         },
         fallbacks=[CommandHandler("cancel", cancel_conversation)],
+        per_message=False,
     )
 
     # ── Conversation: /fijo ──
     fijo_conv = ConversationHandler(
         entry_points=[CommandHandler("fijo", cmd_fijo)],
-        per_message=False,
         states={
             REC_TYPE: [
                 CallbackQueryHandler(rec_type_selected, pattern=r"^rec_type\|"),
@@ -1056,6 +1058,7 @@ def main():
             REC_PAY: [CallbackQueryHandler(rec_payment_selected, pattern=r"^rec_pay\|")],
         },
         fallbacks=[CommandHandler("cancel", cancel_conversation)],
+        per_message=False,
     )
 
     # Register handlers
