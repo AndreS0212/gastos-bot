@@ -1005,6 +1005,7 @@ def main():
     # ── Conversation: /gasto ──
     gasto_conv = ConversationHandler(
         entry_points=[CommandHandler("gasto", cmd_gasto)],
+        per_message=False,
         states={
             AMOUNT: [
                 CallbackQueryHandler(category_selected, pattern=r"^cat_"),
@@ -1023,6 +1024,7 @@ def main():
     # ── Conversation: /ingreso ──
     ingreso_conv = ConversationHandler(
         entry_points=[CommandHandler("ingreso", cmd_ingreso)],
+        per_message=False,
         states={
             AMOUNT: [
                 CallbackQueryHandler(category_selected, pattern=r"^cat_"),
@@ -1041,6 +1043,7 @@ def main():
     # ── Conversation: /fijo ──
     fijo_conv = ConversationHandler(
         entry_points=[CommandHandler("fijo", cmd_fijo)],
+        per_message=False,
         states={
             REC_TYPE: [
                 CallbackQueryHandler(rec_type_selected, pattern=r"^rec_type\|"),
