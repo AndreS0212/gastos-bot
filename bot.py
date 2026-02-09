@@ -14,10 +14,14 @@ import sqlite3
 import asyncio
 from datetime import datetime, timedelta
 from pathlib import Path
+import warnings
 
 # ══════════════════════════════════════════════
 # CONFIG
 # ══════════════════════════════════════════════
+
+# Suppress PTBUserWarning about per_message
+warnings.filterwarnings("ignore", message=".*per_message.*", category=UserWarning)
 
 import sheets_sync
 
@@ -466,6 +470,7 @@ async def _save_transaction(update, context, description, photo_path):
     amount = context.user_data.get("amount", 0)
     payment = context.user_data.get("payment_method", "Efectivo")
 
+    print(f"📝 About to save transaction: user={uid}, type={tx_type}, category={category}, amount={amount}")
     add_transaction(uid, tx_type, category, amount, description, payment, photo_path)
 
     today_total = get_today_total(uid)
@@ -633,6 +638,7 @@ async def quick_payment_selected(update: Update, context: ContextTypes.DEFAULT_T
     desc = context.user_data.get("quick_desc", "")
     photo_path = context.user_data.pop("pending_photo", None)
 
+    print(f"📝 About to save QUICK transaction: user={uid}, type=gasto, category={category}, amount={amount}")
     add_transaction(uid, "gasto", category, amount, desc, payment, photo_path)
     today_total = get_today_total(uid)
 
@@ -995,9 +1001,15 @@ def main():
     init_db()
 
     # Setup Google Sheets
+    print(f"🔍 Checking Google Sheets configuration...")
+    print(f"   GOOGLE_SHEETS_ID: {'✅ Set' if os.environ.get('GOOGLE_SHEETS_ID') else '❌ Not set'}")
+    print(f"   GOOGLE_CREDENTIALS_JSON: {'✅ Set' if os.environ.get('GOOGLE_CREDENTIALS_JSON') else '❌ Not set'}")
+    print(f"   GOOGLE_CREDENTIALS_FILE: {'✅ Set' if os.environ.get('GOOGLE_CREDENTIALS_FILE') else '❌ Not set'}")
+    
     if sheets_sync.is_enabled():
+        print("✅ Google Sheets is enabled, attempting connection...")
         if sheets_sync.setup_sheet_headers():
-            print("📋 Google Sheets connected")
+            print("📋 Google Sheets connected successfully")
         else:
             print("⚠️ Google Sheets configured but failed to connect")
     else:
