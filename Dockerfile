@@ -5,9 +5,8 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY bot.py .
+COPY bot.py sheets_sync.py ./
 
-# Data volume for SQLite persistence
 VOLUME /app/data
 
 CMD ["python", "bot.py"]
