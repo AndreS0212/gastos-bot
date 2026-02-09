@@ -23,8 +23,15 @@ def _get_client():
     creds_file = os.environ.get("GOOGLE_CREDENTIALS_FILE", "")
 
     if creds_json:
-        info = json.loads(creds_json)
-        creds = Credentials.from_service_account_info(info, scopes=SCOPES)
+        try:
+            info = json.loads(creds_json)
+            creds = Credentials.from_service_account_info(info, scopes=SCOPES)
+        except json.JSONDecodeError as e:
+            print(f"Error parsing GOOGLE_CREDENTIALS_JSON: {e}")
+            print(f"First 100 chars of JSON: {creds_json[:100]}")
+            print("Make sure the JSON uses double quotes, not single quotes.")
+            print("Example format: {\"type\": \"service_account\", \"project_id\": \"...\", ...}")
+            return None
     elif creds_file and os.path.exists(creds_file):
         creds = Credentials.from_service_account_file(creds_file, scopes=SCOPES)
     else:
