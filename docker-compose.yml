@@ -1,0 +1,11 @@
+services:
+  gastosbot:
+    build: .
+    container_name: gastosbot
+    restart: unless-stopped
+    environment:
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - AUTHORIZED_USERS=${AUTHORIZED_USERS}
+      - DB_PATH=/app/data/gastos.db
+    volumes:
+      - ./data:/app/data
